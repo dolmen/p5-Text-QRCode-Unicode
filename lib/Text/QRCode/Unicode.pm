@@ -72,6 +72,7 @@ sub lines
     my $filler = $options & FLG_FILLER;
     # Use half (1) or full (2) character width for a QR code block
     my $block_width = $options & FLG_WIDE ? 2 : 1;
+    die "Option 'reverse' not supported... yet!" if $options & FLG_REVERSE;
 
     my $full_right_char = $block_width > 1 || $filler || !($w & 1);
     my $right_char = $full_right_char ? FULL_BLOCK : LEFT_HALF_BLOCK;
