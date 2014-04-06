@@ -53,7 +53,7 @@ my $ref_wide = <<'EOF';
 EOF
 
 is(
-    join("\n", @{ Text::QRCode::Unicode->new(wide => 1)->lines('http://slashdot.org') })."\n",
+    join("\n", @{ Text::QRCode::Unicode->new(narrow => 0)->lines('http://slashdot.org') })."\n",
     $ref_wide,
     'http://slashdot.org - wide'
 );

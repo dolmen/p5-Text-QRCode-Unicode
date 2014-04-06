@@ -10,18 +10,18 @@ use constant {
     OPTIONS     => 1,
 
     FLG_FILLER  => 1,
-    FLG_WIDE    => 2,
+    FLG_NARROW  => 2,
     FLG_REVERSE => 4,
 };
 
 sub new
 {
     my $class = shift;
-    my %opt = (filler => 0, wide => 0, reverse => 0, @_);
+    my %opt = (filler => 0, narrow => 1, reverse => 0, @_);
 
     my $flags =
 	  (0 + delete $opt{filler})
-	| (0 + delete $opt{wide}) << 1
+	| (0 + delete $opt{narrow}) << 1
 	| (0 + delete $opt{reverse}) << 2;
 
     bless [
@@ -71,17 +71,17 @@ sub lines
     # If width is odd, should the last bit be filled or empty?
     my $filler = $options & FLG_FILLER;
     # Use half (1) or full (2) character width for a QR code block
-    my $block_width = $options & FLG_WIDE ? 2 : 1;
+    my $narrow = $options & FLG_NARROW;
     die "Option 'reverse' not supported... yet!" if $options & FLG_REVERSE;
 
-    my $full_right_char = $block_width > 1 || $filler || !($w & 1);
+    my $full_right_char = !$narrow || $filler || !($w & 1);
     my $right_char = $full_right_char ? FULL_BLOCK : LEFT_HALF_BLOCK;
     # QR codes have a margin of 4 blocks
-    my $filler_left = FULL_BLOCK x (2 * $block_width);
+    my $filler_left = FULL_BLOCK x ($narrow ? 2 : 4);
     my $filler_right =
-	  $block_width > 1
-	? $filler_left
-	: (FULL_BLOCK x (2 * $block_width - 1)) . $right_char;
+	  $narrow
+	? FULL_BLOCK . $right_char
+	: $filler_left;
 
     my @a;
     my $tmp;
@@ -92,7 +92,7 @@ sub lines
 	# cells outside the matrix at $j+1
 	no warnings 'uninitialized';
 
-	if ($block_width == 1) {
+	if ($narrow) {
 	    for(my $i = 0; $i < $w-1; $i += 2) {
 		$tmp = ($res->[$j]->[$i]     eq '*' ? 0 : 1)
 		     | ($res->[$j]->[$i+1]   eq '*' ? 0 : 2)
@@ -115,7 +115,7 @@ sub lines
 	$s .= $filler_right;
 	unshift @a, $s;
     }
-    my $count = (2 + ($w >> 1) + 2) * $block_width + ($w & 1) - 1;
+    my $count = (2 + ($w >> 1) + 2) * ($narrow ? 1 : 2) + ($w & 1) - 1;
     # Top margin
     my $std_margin = (FULL_BLOCK x $count) . $right_char;
     unshift @a, $std_margin, $std_margin;
