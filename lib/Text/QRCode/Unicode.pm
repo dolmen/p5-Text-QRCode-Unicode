@@ -5,11 +5,29 @@ package Text::QRCode::Unicode;
 
 use Text::QRCode ();
 
+use constant {
+    TEXT_QRCODE => 0,
+    OPTIONS     => 1,
+
+    FLG_FILLER  => 1,
+    FLG_WIDE    => 2,
+    FLG_REVERSE => 4,
+};
+
 sub new
 {
     my $class = shift;
-    my $text_qrcode = Text::QRCode->new(@_);
-    bless \$text_qrcode, $class
+    my %opt = (filler => 0, wide => 0, reverse => 0, @_);
+
+    my $flags =
+	  (0 + delete $opt{filler})
+	| (0 + delete $opt{wide}) << 1
+	| (0 + delete $opt{reverse}) << 2;
+
+    bless [
+	Text::QRCode->new(%opt),
+	$flags,
+    ], $class
 }
 
 my @CHARS = (
@@ -43,16 +61,17 @@ use constant {
 
 sub lines
 {
-    my $text_qrcode = ${ shift() };
+    my $self = shift;
     my $text = shift;
-    my $res = $text_qrcode->plot($text);
+    my $res = $self->[TEXT_QRCODE]->plot($text);
     my $h = scalar @$res;
     my $w = scalar @{$res->[0]};
 
+    my $options = $self->[OPTIONS];
     # If width is odd, should the last bit be filled or empty?
-    my $filler = 0;
+    my $filler = $options & FLG_FILLER;
     # Use half (1) or full (2) character width for a QR code block
-    my $block_width = 1;
+    my $block_width = $options & FLG_WIDE ? 2 : 1;
 
     my $full_right_char = $block_width > 1 || $filler || !($w & 1);
     my $right_char = $full_right_char ? FULL_BLOCK : LEFT_HALF_BLOCK;
