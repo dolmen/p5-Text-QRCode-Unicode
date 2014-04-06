@@ -7,32 +7,6 @@ use Test::More tests => 2;
 use Text::QRCode::Unicode ();
 
 my $ref_default = <<'EOF';
-████████████████▌
-████████████████▌
-██▗▄▄▐▜▐▞▞▐▗▄▄▐█▌
-██▐ ▐▐▀▜▝▜▟▐ ▐▐█▌
-██▐▄▟▐▘▛▀▀▟▐▄▟▐█▌
-██▄▄▄▟▞▝▟▐▐▄▄▄▟█▌
-██▗▖▐▄▄▚▀█▙▌▙▌██▌
-██▘▚▝▄▐▟▘▖▀▝▚▙▐█▌
-██▐▚▗▟▙▟▟▄ ▞▞▖▟█▌
-██▐▚▖▞▐▖▟▚▝▄▖▙▐█▌
-██▟▟▄▄▗▙▀▀▗▄▝▐██▌
-██▗▄▄▐▞▜▘▟▐▟ ▖▟█▌
-██▐ ▐▐▝▜▟▖▖ ▗▝▐█▌
-██▐▄▟▐ ▘▟▀▜▌▀▟▐█▌
-██▄▄▄▟▟▄███▄▄▄▟█▌
-████████████████▌
-▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▘
-EOF
-
-is(
-    join("\n", @{ Text::QRCode::Unicode->new->lines('http://slashdot.org') })."\n",
-    $ref_default,
-    'http://slashdot.org - default options'
-);
-
-my $ref_wide = <<'EOF';
 █████████████████████████████████
 █████████████████████████████████
 ████ ▄▄▄▄▄ █▀█ █▄▀▄▀ █ ▄▄▄▄▄ ████
@@ -53,8 +27,34 @@ my $ref_wide = <<'EOF';
 EOF
 
 is(
-    join("\n", @{ Text::QRCode::Unicode->new(narrow => 0)->lines('http://slashdot.org') })."\n",
-    $ref_wide,
-    'http://slashdot.org - wide'
+    join("\n", @{ Text::QRCode::Unicode->new->lines('http://slashdot.org') })."\n",
+    $ref_default,
+    'http://slashdot.org - default options'
+);
+
+my $ref_narrow = <<'EOF';
+████████████████▌
+████████████████▌
+██▗▄▄▐▜▐▞▞▐▗▄▄▐█▌
+██▐ ▐▐▀▜▝▜▟▐ ▐▐█▌
+██▐▄▟▐▘▛▀▀▟▐▄▟▐█▌
+██▄▄▄▟▞▝▟▐▐▄▄▄▟█▌
+██▗▖▐▄▄▚▀█▙▌▙▌██▌
+██▘▚▝▄▐▟▘▖▀▝▚▙▐█▌
+██▐▚▗▟▙▟▟▄ ▞▞▖▟█▌
+██▐▚▖▞▐▖▟▚▝▄▖▙▐█▌
+██▟▟▄▄▗▙▀▀▗▄▝▐██▌
+██▗▄▄▐▞▜▘▟▐▟ ▖▟█▌
+██▐ ▐▐▝▜▟▖▖ ▗▝▐█▌
+██▐▄▟▐ ▘▟▀▜▌▀▟▐█▌
+██▄▄▄▟▟▄███▄▄▄▟█▌
+████████████████▌
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▘
+EOF
+
+is(
+    join("\n", @{ Text::QRCode::Unicode->new(narrow => 1)->lines('http://slashdot.org') })."\n",
+    $ref_narrow,
+    'http://slashdot.org - narrow'
 );
 

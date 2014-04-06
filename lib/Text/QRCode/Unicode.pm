@@ -17,7 +17,7 @@ use constant {
 sub new
 {
     my $class = shift;
-    my %opt = (filler => 0, narrow => 1, reverse => 0, @_);
+    my %opt = (filler => 0, narrow => 0, reverse => 0, @_);
 
     my $flags =
 	  (0 + delete $opt{filler})
