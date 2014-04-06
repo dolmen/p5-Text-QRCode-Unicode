@@ -129,6 +129,9 @@ sub lines
 }
 
 1;
+__END__
+
+=encoding utf-8
 
 =head1 NAME
 
@@ -136,14 +139,62 @@ Text::QRCode::Unicode
 
 =head1 SYNOPSIS
 
-Print a QR code for L<http://slashdot.org>:
+Print a QR code for L<https://metacpan.org>:
 
     use Text::QRCode::Unicode;
 
     use open ':locale', ':std':
     use feature 'say';
 
-    say for @{ Text::QRCode::Unicode->new->lines("http://slashdot.org") };
+    say for @{ Text::QRCode::Unicode->new->lines("https://metacpan.org") };
+
+Output:
+
+    █████████████████████████████████
+    █████████████████████████████████
+    ████ ▄▄▄▄▄ ██▄▄ ▀▀ ███ ▄▄▄▄▄ ████
+    ████ █   █ █▀▄  █▀▄▀ █ █   █ ████
+    ████ █▄▄▄█ █▄▀ █▄▀▄███ █▄▄▄█ ████
+    ████▄▄▄▄▄▄▄█▄▀▄█ █▄▀ █▄▄▄▄▄▄▄████
+    ████▄▄██▀▄▄▄█▄ █▄▄ ▀███▀  ▀▀█████
+    ████ ▀ ▄▀▄▄▄ ▄▀ ▄▄ ▄▄   ▀ █▄ ████
+    ████▀██▄ ▀▄▀▄  █▀ ▄  ▀▄ ███▀▄████
+    ████ █▀▄▀▄▄▄█▀▀█▀  ▄▀▄  ▄ ▀▄ ████
+    ████▄█▄▄▄▄▄▄ █ █▄█▄  ▄▄▄ █▄██████
+    ████ ▄▄▄▄▄ █ ▀ ▀▄▄ ▀ █▄█ ███ ████
+    ████ █   █ ██▀▀▄▀▀█ ▄  ▄▄█▄  ████
+    ████ █▄▄▄█ █▀█ █▀ ▄▄▀█▀▀▀▄▄█ ████
+    ████▄▄▄▄▄▄▄█▄▄█▄▄▄██▄█▄██▄██▄████
+    █████████████████████████████████
+    ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+
+=head1 DESCRIPTION
+
+This class creates QR Code represented in text using Unicode characters from
+the block elements range.
+
+Half of a character height is used as the QR Code block height.
+Standard margin (4 blocks on each side) is included in the output.
+
+=head1 CONSTRUCTOR OPTIONS
+
+=over 4
+
+=item * C<narrow =E<gt> 1>
+
+Use a half character width for the QR Code block width. Default is false
+because characters on a terminal are usually twice tall than wide and this
+often breaks the aspect ratio.
+
+=item * C<filler =E<gt> 1>
+
+When the bits size of the QR Code is odd, this tells what to show on the right
+and on the bottom of the output: either a half block (C<filler=0>) or a full
+block (C<filler=1>).
+
+=item * Other options of L<Text::QRCode>...
+
+=back
 
 =head1 AUTHOR
 
