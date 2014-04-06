@@ -49,43 +49,61 @@ sub lines
     my $h = scalar @$res;
     my $w = scalar @{$res->[0]};
 
-    # If with is odd, should the last bit be filled or empty?
+    # If width is odd, should the last bit be filled or empty?
     my $filler = 0;
+    # Use half (1) or full (2) character width for a QR code block
+    my $block_width = 1;
 
-    my $filler_right = FULL_BLOCK
-		     . ($filler || !($w & 1) ? FULL_BLOCK : LEFT_HALF_BLOCK);
+    my $full_right_char = $block_width > 1 || $filler || !($w & 1);
+    my $right_char = $full_right_char ? FULL_BLOCK : LEFT_HALF_BLOCK;
+    # QR codes have a margin of 4 blocks
+    my $filler_left = FULL_BLOCK x (2 * $block_width);
+    my $filler_right =
+	  $block_width > 1
+	? $filler_left
+	: (FULL_BLOCK x (2 * $block_width - 1)) . $right_char;
 
     my @a;
     my $tmp;
     for(my $j = ($h-1) & ~1; $j >= 0; $j -= 2) {
-	my $s = FULL_BLOCK x 2;
+	my $s = $filler_left;
 
 	# As we may go one line too far, we will access
 	# cells outside the matrix at $j+1
 	no warnings 'uninitialized';
 
-	for(my $i = 0; $i < $w-1; $i += 2) {
-	    $tmp = ($res->[$j]->[$i]     eq '*' ? 0 : 1)
-		 | ($res->[$j]->[$i+1]   eq '*' ? 0 : 2)
-		 | ($res->[$j+1]->[$i]   eq '*' ? 0 : 4)
-		 | ($res->[$j+1]->[$i+1] eq '*' ? 0 : 8);
-	    $s .= $CHARS[$tmp];
+	if ($block_width == 1) {
+	    for(my $i = 0; $i < $w-1; $i += 2) {
+		$tmp = ($res->[$j]->[$i]     eq '*' ? 0 : 1)
+		     | ($res->[$j]->[$i+1]   eq '*' ? 0 : 2)
+		     | ($res->[$j+1]->[$i]   eq '*' ? 0 : 4)
+		     | ($res->[$j+1]->[$i+1] eq '*' ? 0 : 8);
+		$s .= $CHARS[$tmp];
+	    }
+	    $s .= $CHARS[
+		      ($res->[$j]->[$w-1]   eq '*' ? 2 :  3)
+		    | ($res->[$j+1]->[$w-1] eq '*' ? 8 : 12)
+		] if $w & 1;
+	} else {
+	    for(my $i = 0; $i < $w; $i++) {
+		$s .= $CHARS[
+			($res->[$j  ]->[$i] eq '*' ? 0 :  3)
+		      | ($res->[$j+1]->[$i] eq '*' ? 0 : 12)
+		    ];
+	    }
 	}
-	$s .= $CHARS[
-		  ($res->[$j]->[$w-1]   eq '*' ? 2 :  3)
-		| ($res->[$j+1]->[$w-1] eq '*' ? 8 : 12)
-	    ] if $w & 1;
 	$s .= $filler_right;
 	unshift @a, $s;
     }
+    my $count = (2 + ($w >> 1) + 2) * $block_width + ($w & 1) - 1;
     # Top margin
-    my $top_margin = FULL_BLOCK x (3+($w>>1)) . $filler_right;
-    unshift @a, $top_margin;
+    my $std_margin = (FULL_BLOCK x $count) . $right_char;
+    unshift @a, $std_margin, $std_margin;
     # Bottom margin
-    push @a,
+    push @a, $std_margin,
 	  ($filler || !($h & 1))
-	? $top_margin
-	: (UPPER_HALF_BLOCK x (4+($w>>1)) . ($filler ? FULL_BLOCK : QUADRANT_UPPER_LEFT));
+	? $std_margin
+	: (UPPER_HALF_BLOCK x $count) . ($full_right_char ? UPPER_HALF_BLOCK : QUADRANT_UPPER_LEFT);
 
     \@a
 }
